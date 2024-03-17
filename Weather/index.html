@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather Forecast</title>
+  <!-- Add Font Awesome CDN -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    integrity="sha512-QVjNvX6rEKZ2x8G2/LCkZs+ZL7/d9z01jRSj5BVROOANaMqFc9TOsn/0mydP5Nvz+nNcHsKoXA3zv5EiMoyU0g=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-image: url('https://cdn.pixabay.com/photo/2018/08/23/07/35/thunderstorm-3625405_640.jpg'); /* Replace 'https://example.com/background.jpg' with your image URL */
+      background-size: cover;
+      background-position: center;
+    }
+
+    header {
+      background-color: rgba(168, 65, 65, 0.5); /* Add a semi-transparent background color to improve readability */
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    nav {
+      margin-top: 20px;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+
+    section {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .main {
+      background-color: #3723988f;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(35, 2, 2, 0.1);
+      max-width: 800px;
+    }
+
+    .head {
+      margin-top: 0;
+    }
+
+    .text {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #491b83;
+      border-radius: 4px;
+      resize: none;
+    }
+
+    .b {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 7px;
+      cursor: pointer;
+    }
+
+    .weather {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .card {
+      background-color: #e2e3e8;
+      margin-bottom: 20px;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h2 {
+      margin-top: 0;
+    }
+
+    .info p {
+      margin: 0;
+    }
+
+    .weather-icon img {
+      max-width: 100px;
+      max-height: 100px;
+      margin-top: 10px;
+    }
+
+    .hourly-forecast,
+    .daily-forecast {
+      overflow-x: auto;
+      white-space: nowrap;
+      margin-top: 20px;
+    }
+
+    .forecast-item {
+      display: inline-block;
+      width: 150px;
+      margin-right: 10px;
+      border: 5px solid #ccc;
+      border-radius: 4px;
+      padding: 10px;
+      vertical-align: top;
+      background-color: #764242;
+    }
+
+    .forecast-item p {
+      margin: 5px 0;
+    }
+
+    .forecast-item img {
+      max-width: 50px;
+      max-height: 50px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Weather Forecast</h1>
+    <nav>
+      <a href="#">Weather</a>
+      <a href="#Alerts">Alerts</a>
+      <a href="Map">Map</a>
+      <a href="#Satellite">Satellite</a>
+      <a href="#Satellite">News</a>
+    </nav>
+  </header>
+
+  <section class="main">
+    <div>
+      <h2 class="head">The Only Weather Forecast You Need</h2>
+      <textarea id="getvalue" class="text" placeholder="Enter your location"></textarea>
+    </div>
+    <div>
+      <button class="b" onclick="getWeather();">Search</button>
+    </div>
+  </section>
+
+  <section id="weather" class="weather">
+    <div>
+      <h2>Today</h2>
+      <div class="card">
+        <div class="info">
+          <p>Humidity: <span class="wh" id="humidity"></span></p>
+          <p>UV index: <span class="wh" id="uvIndex"></span></p>
+          <p>Temperature: <span class="wh" id="temperature"></span></p>
+        </div>
+        <div class="weather-icon">
+          <img id="weatherIcon" src="" alt="Weather Icon" />
+        </div>
+      </div>
+    </div>
+
+    <div class="hourly-forecast" id="hourlyForecast"></div>
+    <div class="daily-forecast" id="dailyForecast"></div>
+  </section>
+
+  <script>
+    function getWeather() {
+      var location = document.getElementById("getvalue").value.trim();
+
+      if (location === "") {
+        return;
+      }
+
+      var apiKey = "4b126493c755daf8a409d7d3737b8044";
+      var currentWeatherUrl =
+        "https://api.openweathermap.org/data/2.5/weather?q=" +
+        encodeURIComponent(location) +
+        "&appid=" +
+        apiKey;
+      var hourlyForecastUrl =
+        "https://api.openweathermap.org/data/2.5/forecast?q=" +
+        encodeURIComponent(location) +
+        "&appid=" +
+        apiKey;
+      var dailyForecastUrl =
+        "https://api.openweathermap.org/data/2.5/forecast/daily?q=" +
+        encodeURIComponent(location) +
+        "&appid=" +
+        apiKey +
+        "&cnt=7";
+
+      fetch(currentWeatherUrl)
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error("Failed to fetch current weather data: " + response.statusText);
+          }
+          return response.json();
+        })
+        .then(function (data) {
+          displayCurrentWeather(data);
+        })
+        .catch(function (error) {
+          console.error("Error fetching current weather data:", error);
+        });
+
+      fetch(hourlyForecastUrl)
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error("Failed to fetch hourly forecast data: " + response.statusText);
+          }
+          return response.json();
+        })
+        .then(function (data) {
+          displayHourlyForecast(data);
+        })
+        .catch(function (error) {
+          console.error("Error fetching hourly forecast data:", error);
+        });
+
+      fetch(dailyForecastUrl)
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error("Failed to fetch daily forecast data: " + response.statusText);
+          }
+          return response.json();
+        })
+        .then(function (data) {
+          displayDailyForecast(data);
+        })
+        .catch(function (error) {
+          console.error("Error fetching daily forecast data:", error);
+        });
+    }
+
+    function displayCurrentWeather(data) {
+      var humidity = data.main.humidity;
+      var uvIndex = "N/A";
+      var temperature =
+        Math.round(data.main.temp - 273.15) + "°C";
+      var weatherIcon =
+        "https://openweathermap.org/img/w/" +
+        data.weather[0].icon +
+        ".png";
+
+      document.getElementById("humidity").textContent = humidity + "%";
+      document.getElementById("uvIndex").textContent = uvIndex;
+      document.getElementById("temperature").textContent = temperature;
+      document.getElementById("weatherIcon").src = weatherIcon;
+
+      document.getElementById("weather").style.display = "block";
+    }
+
+    function displayHourlyForecast(data) {
+      var hourlyForecastDiv = document.getElementById("hourlyForecast");
+      hourlyForecastDiv.innerHTML = "<h2>Hourly Forecast</h2>";
+
+      data.list.forEach(function (hourData) {
+        var date = new Date(hourData.dt * 1000);
+        var hour = date.getHours();
+        var temperature = Math.round(hourData.main.temp - 273.15) + "°C";
+        var weatherIcon =
+          "https://openweathermap.org/img/w/" +
+          hourData.weather[0].icon +
+          ".png";
+
+        var hourDiv = document.createElement("div");
+        hourDiv.classList.add("forecast-item");
+        hourDiv.innerHTML = `
+          <p>${hour}:00</p>
+          <p>${date.toLocaleDateString()}</p>
+          <img src="${weatherIcon}" alt="Weather Icon" />
+          <p>${temperature}</p>
+        `;
+        hourlyForecastDiv.appendChild(hourDiv);
+      });
+    }
+
+    function displayDailyForecast(data) {
+      var dailyForecastDiv = document.getElementById("dailyForecast");
+      dailyForecastDiv.innerHTML = "<h2>Daily Forecast</h2>";
+
+      data.list.forEach(function (dayData) {
+        var date = new Date(dayData.dt * 1000);
+        var temperature = Math.round(dayData.temp.day - 273.15) + "°C";
+        var weatherIcon =
+          "https://openweathermap.org/img/w/" +
+          dayData.weather[0].icon +
+          ".png";
+
+        var dayDiv = document.createElement("div");
+        dayDiv.classList.add("forecast-item");
+        dayDiv.innerHTML = `
+          <p>${date.toLocaleDateString()}</p>
+          <img src="${weatherIcon}" alt="Weather Icon" />
+          <p>${temperature}</p>
+        `;
+        dailyForecastDiv.appendChild(dayDiv);
+      });
+    }
+  </script>
+</body>
+</html>
